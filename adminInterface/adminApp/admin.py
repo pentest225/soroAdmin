@@ -20,6 +20,7 @@ class CategorieAdmin(admin.ModelAdmin):
     ordering = ['nom']
     date_hierarchy = 'date_add'
     inlines = [SousCategorieInline]
+    readonly_fields=['detaile_image']
     
     actions = ('active','deactive')
     
@@ -41,6 +42,8 @@ class CategorieAdmin(admin.ModelAdmin):
     def view_image(self,obj):
         return mark_safe('<img src="{url}" width="100px" height="50px" />'.format(url=obj.image.url))
     
+    def detaile_image(self,obj):
+        return mark_safe('<img src="{url}" width="300px" height="300px" />'.format(url=obj.image.url))
     
 @admin.register(models.SousCategorie)
 class SousCategorieAdmin(admin.ModelAdmin):
@@ -74,4 +77,50 @@ class SousCategorieAdmin(admin.ModelAdmin):
         
         
         
+@admin.register(models.Produit)
+class ProduitAdmin(admin.ModelAdmin):
 
+    list_display = ('titre','status','date_add','date_upd','view_image') 
+    list_filter = ('status','date_add','date_upd')#les standard ou les foreignKey
+    search_fields = ('titre',)#dois etre dans liste display ne pas metres de stadard prend le charField ou les relations 
+    list_display_links = ('view_image','titre')# tous les elements squf les standards
+    list_per_page = 3
+    ordering = ['titre']
+    date_hierarchy = 'date_add'
+    fieldsets=[
+        ('Titre et Visibibilité',{'fields':['titre','status']}),
+        ('Descriptions et Image',{'fields':['description','image']}),
+        ('Tag et Souscategorie',{'fields':['tag','sous_categorie']}),
+    ]
+    filter_horizontal =('tag','sous_categorie')
+            
+    actions = ('active','deactive')
+            
+    def active(self,request,queryset):
+        queryset.update(status=True)
+        self.message_user(request,'la selections a été active avec seccès')
+
+    active.short_description = 'active les sous categorie sélectionée '
+            
+                
+                
+                
+    def deactive(self,request,queryset):
+        queryset.update(status=False)
+        self.message_user(request,'la selections a ete désactive avec seccès')
+
+    deactive.short_description = 'deactivé les categorie sélectionée '
+            
+    def view_image(self,obj):
+        return mark_safe('<img src="{url}" width="100px" height="50px" />'.format(url=obj.image.url))
+    
+    def detaile_image(self,obj):
+        return mark_safe('<img src="{url}" width="300px" height="300px" />'.format(url=obj.image.url))
+            
+@admin.register(models.Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ("nom","status")
+    list_filter = ('status',)#les standard ou les foreignKey
+    search_fields = ('nom',)#dois etre dans liste display ne pas metres de stadard prend le charField ou les relations 
+    list_display_links = ('nom',)# tous les elements squf les standards
+    

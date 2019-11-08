@@ -56,7 +56,7 @@ class Tag(models.Model):
 
     def __str__(self):
         """Unicode representation of Tag."""
-        pass
+        return self.nom
 
 class Produit(models.Model):
     titre=models.CharField(max_length=255)
